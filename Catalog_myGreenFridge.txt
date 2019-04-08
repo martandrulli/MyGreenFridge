@@ -3,8 +3,8 @@
 		"ID": "0123456789",
 		"password": "psw_leti"}],
 
-"devices": [{"fridge_ID" : "123",
-		  "sensors": [{"endpoints":"192.168.1.254/0123456789/123/sensors/temperature/ts1",
+"fridges": [{"fridge_ID" : "123",
+		  "devices": [{"endpoints":"192.168.1.254/0123456789/123/sensors/temperature/ts1",
 "deviceID":"ts1",
 "protocol":"MQTT",
 "resources":"temperature",
