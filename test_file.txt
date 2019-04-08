@@ -1,0 +1,5 @@
+{"broker_IP": "192.168.1.254",
+"users": [],
+"fridges": [],
+"broker_port": 1883,
+"last_edit": 0}
