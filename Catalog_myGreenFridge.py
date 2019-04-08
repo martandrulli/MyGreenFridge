@@ -133,12 +133,16 @@ class Catalog:
                     if fridge['password'] != password: # the password is incorrect
                         return 'Password incorrect'
                     else: # the password is correct
-                        fridge['ID_user'] = ID_user # associate the user to the fridge
-                        file = open(self.filename, 'w')
-                        file.write(json.dumps(dict))
-                        file.close()
-                        # self.threadLock.release()
-                        return 'Association successful'
+                        try:
+                            fridge['ID_user'] = ID_user # associate the user to the fridge
+                            file = open(self.filename, 'w')
+                            file.write(json.dumps(dict))
+                            file.close()
+                            # self.threadLock.release()
+                            return 'Association successful'
+                        except:
+                            # self.threadLock.release()
+                            return 'Error in association'
             
             if fridge_found == 0: # the fridge has not been found
                 return 'Fridge not found'
@@ -159,10 +163,15 @@ class Catalog:
             if fridge['ID_fridge'] == fridge_data['ID_fridge']: # already existing fridge
                 # update the information about the existing fridge
                 fridge_found = 1
-                fridge['ID_user'] = fridge_data['ID_user']
-                fridge['password'] = fridge_data['password']
-                fridge['timestamp'] = time.time()
-                return 'Fridge data updated successfully'
+                try:
+                    fridge['ID_user'] = fridge_data['ID_user']
+                    fridge['password'] = fridge_data['password']
+                    fridge['timestamp'] = time.time()
+                    # self.threadLock.release()
+                    return 'Fridge data updated successfully'
+                except:
+                    # self.threadLock.release()
+                    return 'Error in updating fridge data'
         
         if fridge_found == 0: # the fridge does not already exist
             try:
@@ -202,11 +211,17 @@ class Catalog:
                     if device['ID_device'] == device_data['ID_device']: # already existing device
                         # update the information about the existing device
                         device_found = 1
-                        device['endpoints'] = device_data['endpoints']
-                        device['protocol'] = device_data['protocol']
-                        device['resources'] = device_data['resources']
-                        device['timestamp'] = time.time()
-                        return 'Device data updated successfully'
+                        try:
+                            device['endpoints'] = device_data['endpoints']
+                            device['protocol'] = device_data['protocol']
+                            device['resources'] = device_data['resources']
+                            device['timestamp'] = time.time()
+                            # self.threadLock.release()
+                            return 'Device data updated successfully'
+                        except:
+                            # self.threadLock.release()
+                            return 'Error in updating device data'
+                            
 
                 if device_found == 0: # the device does not already exist
                     try:
@@ -228,39 +243,42 @@ class Catalog:
             return 'Fridge not found'
         
 
-    def add_user(self, data):
-
+    def add_user(self, user_data):
+        '''Adds a user to the system. The input parameter "user_data"
+        is a json containing the fields "ID_user" and "nickname" '''
+        
+        
         # self.threadLock.acquire()
 
         file = open(self.filename, 'r')
         json_file = file.read()
         dict = json.loads(json_file)
         file.close()
-
+        
         for user in dict['users']:
-            try:
-                if user['ID'] == str(data['ID']):
+            if user['ID_user'] == str(data['ID_user']): # CHECK THIS: USE str(data) ??? also elsewhere???
+                try:
                     user['nickname'] = data['nickname']
                     file = open(self.filename, 'w')
                     file.write(json.dumps(dict))
                     file.close()
                     # self.threadLock.release()
-                    return "Dear user, the nickname has been updated."
-            except:
-                # self.threadLock.release()
-                return "Sorry. There was an error in the nickname update of the user."
+                    return 'User data updated successfully'
+                except:
+                    # self.threadLock.release()
+                    return 'Error in updating user data'
 
         try:
-            dict['users'].append({'ID': str(data['ID']),
+            dict['users'].append({'ID_user': str(data['ID_user']),
                                 'nickname': data['nickname']})
             file = open(self.filename, 'w')
             file.write(json.dumps(dict))
             file.close()
             # self.threadLock.release()
-            return "The user registration has been successful"
+            return 'User registered successfully'
         except:
             # self.threadLock.release()
-            return "Sorry. There was an error in the user registration."
+            return 'Error in user registration'
 
     def deleteFridge(self, ID):
 
