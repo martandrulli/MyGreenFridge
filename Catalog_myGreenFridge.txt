@@ -5,6 +5,7 @@
 
 "fridges": [{"ID_fridge" : "123",
 		  "password" : "psw123",
+		  "ID_user" : "Letizia", 
 		  "devices": [{"endpoints":"192.168.1.254/0123456789/123/sensors/temperature/ts1",
 "deviceID":"ts1",
 "protocol":"MQTT",
