@@ -280,26 +280,72 @@ class Catalog:
             # self.threadLock.release()
             return 'Error in user registration'
 
-    def deleteFridge(self, ID):
-
+    def delete_fridge(self, ID_fridge):
+        '''Removes a fridge from the system'''
         # self.threadLock.acquire()
 
-        print "Deleting fridge"
         file = open(self.filename, 'r')
         dict = json.loads(file.read())
         file.close()
 
+        fridge_found = 0
         for fridge in dict['fridges']:
-            if fridge['ID'] == ID:
-                dict['fridges'].remove(fridge)
-                file = open(self.filename, 'w')
-                file.write(json.dumps(dict))
-                file.close()
+            if fridge['ID_fridge'] == ID_fridge:
+                fridge_found = 1
+                try:
+                    dict['fridges'].remove(fridge)
+                    file = open(self.filename, 'w')
+                    file.write(json.dumps(dict))
+                    file.close()
+                    # self.threadLock.release()
+                    return 'Fridge removed successfully'
+                except:
+                    # self.threadLock.release()
+                    return 'Error in fridge removal'
+        if fridge_found == 0:
+            # self.threadLock.release()
+            return 'Fridge not found'
+    
+    def delete_device(self, device_data):
+        '''Removes a device from the system. The input parameter "device_data"
+        is a json containing the fields "ID_fridge" and "ID_device" '''
+        
+        # self.threadLock.acquire()
 
-        # self.threadLock.release()
+        file = open(self.filename, 'r')
+        dict = json.loads(file.read())
+        file.close()
+
+        fridge_found = 0
+        for fridge in dict['fridges']:
+            if fridge['ID_fridge'] == device_data['ID_fridge']:
+                fridge_found = 1
+                
+                device_found = 0
+                for device in fridge['devices']:
+                    if device['ID_device'] == device_data['ID_device']:
+                        device_found = 1
+                        try:
+                            fridge['devices'].remove(device)
+                            file = open(self.filename, 'w')
+                            file.write(json.dumps(dict))
+                            file.close()
+                            # self.threadLock.release()
+                            return 'Device removed successfully'
+                        except:
+                            # self.threadLock.release()
+                            return 'Error in device removal'
+                
+                if device_found == 0:
+                    # self.threadLock.release()
+                    return 'Device not found'
+        
+        if fridge_found == 0:
+            # self.threadLock.release()
+            return 'Fridge not found'
 
    
-    def deleteUser(self, ID):
+    def delete_user(self, ID_user):
 
         # self.threadLock.acquire()
 
@@ -307,19 +353,32 @@ class Catalog:
         dict = json.loads(file.read())
         file.close()
 
-        for fridge in dict['fridges']:
-            if fridge['user'] == ID:
-                fridge['user'] = None
-
+        user_found = 0
         for user in dict['users']:
             if user['ID'] == ID:
-                dict['users'].remove(user)
+                user_found = 1
+                try:
+                    dict['users'].remove(user)
 
-        file = open(self.filename, 'w')
-        file.write(json.dumps(dict))
-        file.close()
+                    # remove the association between the user and his/her fridges
+                    for fridge in dict['fridges']:
+                        if fridge['ID_user'] == ID_user:
+                            fridge['ID_user'] = None
 
-        # self.threadLock.release()
+                    file = open(self.filename, 'w')
+                    file.write(json.dumps(dict))
+                    file.close()
+
+                    # self.threadLock.release()
+                    return 'User removed successfully'
+                except:
+                    # self.threadLock.release()
+                    return 'Error in user removal'
+        
+        if user_found == 0:
+            # self.threadLock.release()
+            return 'User not found'
+                    
 
 # RIVEDERE POI, QUANDO CAPIREMO COME E SE INSERIRE I THREAD.
 # Letizia sostiene che questa cosa sia abbastanza obbligatoria da fare
