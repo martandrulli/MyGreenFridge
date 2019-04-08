@@ -5,18 +5,22 @@
 
 "fridges": [{"ID_fridge" : "123",
 		  "password" : "psw123",
-		  "ID_user" : "Letizia", 
-		  "devices": [{"endpoints":"192.168.1.254/0123456789/123/sensors/temperature/ts1",
+		  "ID_user" : "Letizia",
+		  "timestamp" : 0342748,
+		  "devices": 
+		  
+[{"endpoints":"192.168.1.254/0123456789/123/sensors/temperature/ts1",
 "deviceID":"ts1",
 "protocol":"MQTT",
 "resources":"temperature",
-"timestamp":"0123"
+"timestamp": 0123
 },
 {"endpoints":"192.168.1.254/0123456789/123/sensors/humidity/hs1",
 "deviceID":"hs1",
 "protocol":"MQTT",
 "resources":"humidity",
-"timestamp":"0124"}],
+"timestamp": 0124 }],
+
 		"products_list" : []
 }],
 "broker_port": 1883,
