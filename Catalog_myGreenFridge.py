@@ -49,14 +49,8 @@ class Catalog:
         dict = json.loads(json_file)
         file.close()
 
-        user_list = []
-
-        for user in dict['users']:
-            user_dict = {'nickname': user['nickname'], 'ID_user' : user['ID_user']}
-            user_list.append(user_dict)
-
         # self.threadLock.release()
-        return json.dumps(user_list)
+        return json.dumps(dict['users'])
 
     def get_user(self, ID_user):
         '''Returns information about a
@@ -98,18 +92,21 @@ class Catalog:
         json_file = file.read()
         dict = json.loads(json_file)
         file.close()
+        
+        fridge_list = []
+        # return all the information about the fridge, except for the password and the ID_user
+        for fridge in dict['fridges']:
+            fridge_dict = {'ID_fridge': fridge['ID_fridge'], 'devices' : fridge['devices'], 'products_list' : fridge['products_list']}
+            fridge_list.append(fridge_dict)
 
         # self.threadLock.release()
-
-        for fridge in dict['fridges']:
-            if fridge['ID_fridge'] == ID_fridge:
-                    return json.dumps(fridge)
-        return "Fridge not found"
+        return json.dumps(fridge_list)
 
 
-    def associate(self, IDUser, IDFridge, password):
-        '''Associates a specific fridge to a user,
-        by means of the relative IDs and a password'''
+    def associate(self, ID_user, ID_fridge, password):
+        '''Associates a specific fridge with ID_fridge
+        to a specific user with ID_user,
+        by using a password'''
 
         # self.threadLock.acquire()
 
@@ -118,116 +115,70 @@ class Catalog:
         dict = json.loads(json_file)
         file.close()
 
-        # Search for the user
-        flag = 0
+        # find the user
+        user_found = 0
         for user in dict['users']:
-            if user['ID'] == IDUser:
-                flag = 1
-
-        if flag == 0:
+            if user['ID_user'] == ID_user:
+                user_found = 1
+        
+        if user_found == 0: # the user has not been found
             # self.threadLock.release()
             return "User not found"
+        else: # the user has been found
+            # find the fridge
+            fridge_found = 0
+            for fridge in dict['fridges']:
+                if fridge['ID_fridge'] == ID_fridge:
+                    fridge_found = 1 # the fridge has been found
+                    if fridge['password'] != password: # the password is incorrect
+                        return 'Password incorrect'
+                    else: # the password is correct
+                        fridge['ID_user'] = ID_user # associate the user to the fridge
+                        file = open(self.filename, 'w')
+                        file.write(json.dumps(dict))
+                        file.close()
+                        # self.threadLock.release()
+                        return 'Association successful'
+            
+            if fridge_found == 0: # the fridge has not been found
+                return 'Fridge not found'
 
+    def add_fridge(self, fridge_data):
+        
+        # self.threadLock.acquire()
+
+        file = open(self.filename, 'r')
+        json_file = file.read()
+        dict = json.loads(json_file)
+        file.close()
+        
+        
+
+    def add_device(self, device_data_data):
+
+        # self.threadLock.acquire()
+
+        file = open(self.filename, 'r')
+        json_file = file.read()
+        dict = json.loads(json_file)
+        file.close()
 
         for fridge in dict['fridges']:
-            if fridge['ID'] == IDFridge:
-                if fridge['pws'] != password:
-                    return "Sorry. The password you have entered is not correct."
-                fridge['user'] = IDUser
+            if fridge['ID'] == fridge_data['ID']:
+                fridge['IP'] = fridge_data['IP']
+                fridge['port'] = fridge_data['port']
+                fridge['GET'] = fridge_data['GET']
+                fridge['POST'] = fridge_data['POST']
+                fridge['sub_topics'] = fridge_data['sub_topics']
+                fridge['pub_topics'] = fridge_data['pub_topics']
+                fridge['resources'] = fridge_data['resources']
+                fridge['pws'] = fridge_data['psw']
+                fridge['insert-timestamp'] = time.time()
                 file = open(self.filename, 'w')
                 file.write(json.dumps(dict))
                 file.close()
                 # self.threadLock.release()
-                return "The association has been successful."
-
-        # ??????
-
-        # if the fridge is not found
-
-        # self.threadLock.release()
-        return "Sorry. The fridge you have looked for is not registred."
-
-    # def changetemp(self, IDFridge, temp):
-    #
-    #     self.threadLock.acquire()
-    #
-    #     file = open(self.filename, 'r')
-    #     json_file = file.read()
-    #     dict = json.loads(json_file)
-    #     file.close()
-    #
-    #     for ctrl in dict['temp_controls']:
-    #
-    #         if ctrl['terrarium'] == IDTerr:
-    #             ctrl['temp'] = temp
-    #
-    #             file = open(self.filename, 'w')
-    #             file.write(json.dumps(dict))
-    #             file.close()
-    #             self.threadLock.release()
-    #             return ctrl['IP'], ctrl['port']
-    #
-    #     # if the control for that terrarium is not found
-    #     self.threadLock.release()
-    #     return "Error", "Error"
-
-    # def changelightcycle(self, IDTerr, dawn, dusk):
-    #
-    #     self.threadLock.acquire()
-    #
-    #     file = open(self.filename, 'r')
-    #     json_file = file.read()
-    #     dict = json.loads(json_file)
-    #     file.close()
-    #
-    #     for ctrl in dict['light_controls']:
-    #
-    #         if ctrl['terrarium'] == IDTerr:
-    #
-    #             ctrl['dawn'] = dawn
-    #             ctrl['dusk'] = dusk
-    #
-    #             file = open(self.filename, 'w')
-    #             file.write(json.dumps(dict))
-    #             file.close()
-    #             self.threadLock.release()
-    #
-    #             return ctrl['IP'], ctrl['port']
-    #
-    #     # if the control for that terrarium is not found
-    #     self.threadLock.release()
-    #     return "Error", "Error"
-
-
-    def addFridge(self, data):
-
-        # self.threadLock.acquire()
-
-        file = open(self.filename, 'r')
-        json_file = file.read()
-        dict = json.loads(json_file)
-        file.close()
-
-        for fridge in dict['fridges']:
-            try:
-                if fridge['ID'] == data['ID']:
-                    fridge['IP'] = data['IP']
-                    fridge['port'] = data['port']
-                    fridge['GET'] = data['GET']
-                    fridge['POST'] = data['POST']
-                    fridge['sub_topics'] = data['sub_topics']
-                    fridge['pub_topics'] = data['pub_topics']
-                    fridge['resources'] = data['resources']
-                    fridge['pws'] = data['psw']
-                    fridge['insert-timestamp'] = time.time()
-                    file = open(self.filename, 'w')
-                    file.write(json.dumps(dict))
-                    file.close()
-                    # self.threadLock.release()
-                    return "Dear user, the fridge time update has been successful."
-            except:
-                # self.threadLock.release()
-                return "Sorry, there was an error during the time update of the fridge."
+                return "Dear user, the fridge time update has been successful."
 
         try:
             dict['fridges'].append({'ID': data['ID'],
@@ -250,112 +201,6 @@ class Catalog:
         except:
             # self.threadLock.release()
             return "Sorry. There was an error in registrating the fridge."
-
-    # def addtempcontrol(self, data):
-    #
-    #     self.threadLock.acquire()
-    #
-    #     file = open(self.filename, 'r')
-    #     json_file = file.read()
-    #     dict = json.loads(json_file)
-    #     file.close()
-    #
-    #     for device in dict['temp_controls']:
-    #         if device['ID'] == data['ID']:
-    #             try:
-    #                 device['IP'] = data['IP']
-    #                 device['port'] = data['port']
-    #                 device['GET'] = data['GET']
-    #                 device['POST'] = data['POST']
-    #                 device['sub_topics'] = data['sub_topics']
-    #                 device['pub_topics'] = data['pub_topics']
-    #                 device['temp'] = data['temp']
-    #                 device['terrarium'] = data['terrarium']
-    #                 device['insert-timestamp'] = time.time()
-    #
-    #                 file = open(self.filename, 'w')
-    #                 file.write(json.dumps(dict))
-    #                 file.close()
-    #                 self.threadLock.release()
-    #                 return "Update done"
-    #             except:
-    #                 self.threadLock.release()
-    #                 return "Error"
-    #
-    #     try:
-    #         dict['temp_controls'].append({'ID': data['ID'],
-    #                             'IP': data['IP'],
-    #                             'port': data['port'],
-    #                             'GET': data['GET'],
-    #                             'POST': data['POST'],
-    #                             'sub_topics': data['sub_topics'],
-    #                             'pub_topics': data['pub_topics'],
-    #                             'temp': data['temp'],
-    #                             'terrarium': data['terrarium'],
-    #                             'insert-timestamp': time.time()})
-    #
-    #         file = open(self.filename, 'w')
-    #         file.write(json.dumps(dict))
-    #         file.close()
-    #         self.threadLock.release()
-    #         return "Registration done"
-    #     except:
-    #         self.threadLock.release()
-    #         return "Error"
-
-    # def addlightcontrol(self, data):
-    #
-    #     self.threadLock.acquire()
-    #
-    #     file = open(self.filename, 'r')
-    #     json_file = file.read()
-    #     dict = json.loads(json_file)
-    #     file.close()
-    #
-    #     for device in dict['light_controls']:
-    #         try:
-    #             if device['ID'] == data['ID']:
-    #                 device['IP'] = data['IP']
-    #                 device['port'] = data['port']
-    #                 device['GET'] = data['GET']
-    #                 device['POST'] = data['POST']
-    #                 device['sub_topics'] = data['sub_topics']
-    #                 device['pub_topics'] = data['pub_topics']
-    #                 device['dawn'] = data['dawn']
-    #                 device['dusk'] = data['dusk']
-    #                 device['terrarium'] = data['terrarium']
-    #                 device['insert-timestamp'] = time.time()
-    #
-    #                 file = open(self.filename, 'w')
-    #                 file.write(json.dumps(dict))
-    #                 file.close()
-    #                 self.threadLock.release()
-    #                 return "Update done"
-    #         except:
-    #             self.threadLock.release()
-    #             return "Error"
-    #
-    #     try:
-    #         dict['light_controls'].append({'ID': data['ID'],
-    #                             'IP': data['IP'],
-    #                             'port': data['port'],
-    #                             'GET': data['GET'],
-    #                             'POST': data['POST'],
-    #                             'sub_topics': data['sub_topics'],
-    #                             'pub_topics': data['pub_topics'],
-    #                             'dawn': data['dawn'],
-    #                             'dusk': data['dusk'],
-    #                             'terrarium': data['terrarium'],
-    #                             'insert-timestamp': time.time()})
-    #
-    #         file = open(self.filename, 'w')
-    #         file.write(json.dumps(dict))
-    #         file.close()
-    #         self.threadLock.release()
-    #         return "Registration done"
-    #     except:
-    #         self.threadLock.release()
-    #         return "Error"
 
     def adduser(self, data):
 
