@@ -381,7 +381,7 @@ class Catalog:
 
 # SOLO PER PROVA
 if __name__ == '__main__':
-    catalog = Catalog(test_file)
+    catalog = Catalog("test_file.txt")
 
 
 
