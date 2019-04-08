@@ -378,7 +378,13 @@ class Catalog:
         if user_found == 0:
             # self.threadLock.release()
             return 'User not found'
-                    
+
+# SOLO PER PROVA
+if __name__ == '__main__':
+    catalog = Catalog(test_file)
+
+
+
 
 # RIVEDERE POI, QUANDO CAPIREMO COME E SE INSERIRE I THREAD.
 # Letizia sostiene che questa cosa sia abbastanza obbligatoria da fare
