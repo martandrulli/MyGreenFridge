@@ -10,17 +10,17 @@
 		  "devices": 
 		  
 [{"endpoints":"192.168.1.254/0123456789/123/sensors/temperature/ts1",
-"deviceID":"ts1",
+"ID_device":"ts1",
 "protocol":"MQTT",
 "resources":"temperature",
 "timestamp": 0123
 },
 {"endpoints":"192.168.1.254/0123456789/123/sensors/humidity/hs1",
-"deviceID":"hs1",
+"ID_device":"hs1",
 "protocol":"MQTT",
 "resources":"humidity",
-"timestamp": 0124 }],
-
+"timestamp": 0124
+}],
 		"products_list" : []
 }],
 "broker_port": 1883,
