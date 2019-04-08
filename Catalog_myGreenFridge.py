@@ -144,6 +144,8 @@ class Catalog:
                 return 'Fridge not found'
 
     def add_fridge(self, fridge_data):
+        '''Adds a fridge to the system. The input parameter "fridge_data" is a json containing
+        the fields "ID_fridge", "ID_user" and "password" '''
         
         # self.threadLock.acquire()
 
@@ -152,57 +154,81 @@ class Catalog:
         dict = json.loads(json_file)
         file.close()
         
-        
-
-    def add_device(self, device_data_data):
-
-        # self.threadLock.acquire()
-
-        file = open(self.filename, 'r')
-        json_file = file.read()
-        dict = json.loads(json_file)
-        file.close()
-
+        fridge_found = 0
         for fridge in dict['fridges']:
-            if fridge['ID'] == fridge_data['ID']:
-                fridge['IP'] = fridge_data['IP']
-                fridge['port'] = fridge_data['port']
-                fridge['GET'] = fridge_data['GET']
-                fridge['POST'] = fridge_data['POST']
-                fridge['sub_topics'] = fridge_data['sub_topics']
-                fridge['pub_topics'] = fridge_data['pub_topics']
-                fridge['resources'] = fridge_data['resources']
-                fridge['pws'] = fridge_data['psw']
-                fridge['insert-timestamp'] = time.time()
+            if fridge['ID_fridge'] == fridge_data['ID_fridge']: # already existing fridge
+                # update the information about the existing fridge
+                fridge_found = 1
+                fridge['ID_user'] = fridge_data['ID_user']
+                fridge['password'] = fridge_data['password']
+                fridge['timestamp'] = time.time()
+                return 'Fridge data updated successfully'
+        
+        if fridge_found == 0: # the fridge does not already exist
+            try:
+                dict['fridges'].append({'ID_fridge': fridge_data['ID_fridge'],
+                                    'ID_user': fridge_data['ID_user'],
+                                    'password': fridge_data['password'],
+                                    'timestamp': time.time()})
                 file = open(self.filename, 'w')
                 file.write(json.dumps(dict))
                 file.close()
                 # self.threadLock.release()
-                return "Dear user, the fridge time update has been successful."
+                return 'Fridge registered successfully'
+            except:
+                # self.threadLock.release()
+                return 'Error in fridge registration'
+    
+        
+    def add_device(self, device_data):
+        '''Adds a device to a specific fridge with "ID_fridge". The input parameter
+        "device_data" is a json containing the fields "ID_fridge", "ID_device",
+        "endpoints", "protocol"and "resources" '''
+        
+        # self.threadLock.acquire()
 
-        try:
-            dict['fridges'].append({'ID': data['ID'],
-                                'IP': data['IP'],
-                                'port': data['port'],
-                                'GET': data['GET'],
-                                'POST': data['POST'],
-                                'sub_topics': data['sub_topics'],
-                                'pub_topics': data['pub_topics'],
-                                'resources': data['resources'],
-                                'pws': data['psw'],
-                                'user': None,
-                                'insert-timestamp': time.time()})
+        file = open(self.filename, 'r')
+        json_file = file.read()
+        dict = json.loads(json_file)
+        file.close()
+        
+        fridge_found = 0
+        for fridge in dict['fridges']:
+            if fridge['ID_fridge'] == device_data['ID_fridge']:
+                fridge_found = 1
+                
+                device_found = 0
+                for device in fridge['devices']:
+                    if device['ID_device'] == device_data['ID_device']: # already existing device
+                        # update the information about the existing device
+                        device_found = 1
+                        device['endpoints'] = device_data['endpoints']
+                        device['protocol'] = device_data['protocol']
+                        device['resources'] = device_data['resources']
+                        device['timestamp'] = time.time()
+                        return 'Device data updated successfully'
 
-            file = open(self.filename, 'w')
-            file.write(json.dumps(dict))
-            file.close()
-            # self.threadLock.release()
-            return "Dear user, the fridge registration has been successful."
-        except:
-            # self.threadLock.release()
-            return "Sorry. There was an error in registrating the fridge."
+                if device_found == 0: # the device does not already exist
+                    try:
+                        fridge['devices'].append({'ID_device': device_data['ID_device'],
+                                            'endpoints': device_data['endpoints'],
+                                            'protocol': device_data['protocol'],
+                                            'resources': device_data['resources'],
+                                            'timestamp': time.time()})
+                        file = open(self.filename, 'w')
+                        file.write(json.dumps(dict))
+                        file.close()
+                        # self.threadLock.release()
+                        return 'Device registered successfully'
+                    except:
+                        # self.threadLock.release()
+                        return 'Error in device registration'
+        
+        if fridge_found == 0:
+            return 'Fridge not found'
+        
 
-    def adduser(self, data):
+    def add_user(self, data):
 
         # self.threadLock.acquire()
 
@@ -254,44 +280,7 @@ class Catalog:
 
         # self.threadLock.release()
 
-    # def deletetempcontrol(self, ID):
-    #
-    #     self.threadLock.acquire()
-    #
-    #     file = open(self.filename, 'r')
-    #     dict = json.loads(file.read())
-    #     file.close()
-    #
-    #     for device in dict['temp_controls']:
-    #         if device['ID'] == ID:
-    #             dict['temp_controls'].remove(device)
-    #             file = open(self.filename, 'w')
-    #             file.write(json.dumps(dict))
-    #             file.close()
-    #             break
-    #
-    #     self.threadLock.release()
-
-
-    # def deletelightcontrol(self, ID):
-    #
-    #     self.threadLock.acquire()
-    #
-    #     file = open(self.filename, 'r')
-    #     dict = json.loads(file.read())
-    #     file.close()
-    #
-    #     for device in dict['light_controls']:
-    #         if device['ID'] == ID:
-    #             dict['light_controls'].remove(device)
-    #             file = open(self.filename, 'w')
-    #             file.write(json.dumps(dict))
-    #             file.close()
-    #             break
-    #
-    #     self.threadLock.release()
-
-
+   
     def deleteUser(self, ID):
 
         # self.threadLock.acquire()
