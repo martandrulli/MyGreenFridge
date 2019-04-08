@@ -25,7 +25,7 @@ class Catalog:
         # self.deletingThread.start()
 
     def get_broker(self):
-        """Returns IP and port of the broker"""
+        '''Returns IP and port of the broker'''
 
         # self.threadLock.acquire()
 
@@ -40,7 +40,7 @@ class Catalog:
 
 
     def get_users(self):
-        """Returns ID and nickname of each user"""
+        '''Returns ID_user and nickname of each user'''
 
         # self.threadLock.acquire()
 
@@ -52,15 +52,15 @@ class Catalog:
         user_list = []
 
         for user in dict['users']:
-            user_dict = {"nickname": user['nickname'], "ID" : user['ID']}
+            user_dict = {'nickname': user['nickname'], 'ID_user' : user['ID_user']}
             user_list.append(user_dict)
 
         # self.threadLock.release()
         return json.dumps(user_list)
 
-    def get_user(self, ID):
-        """Returns information about a
-        specific user with given ID"""
+    def get_user(self, ID_user):
+        '''Returns information about a
+        specific user with given ID_user'''
         # self.threadLock.acquire()
 
         file = open(self.filename, 'r')
@@ -70,18 +70,14 @@ class Catalog:
         # self.threadLock.release()
 
         for user in dict['users']:
-            if user['ID'] == ID:
-                fridges_list = []
-                for fridge in user['fridges']:
-                    fridge_dict = {"fridge_ID": fridge['fridge_ID']}
-                    fridges_list.append(fridge_dict)
-                user_dict = {"nickname": user['nickname'], "ID" : user['ID'], "fridges": fridges_list}
+            if user['ID_user'] == ID_user:
+                user_dict = {'nickname': user['nickname'], 'ID_user' : user['ID_user']}
                 return json.dumps(user_dict)
-        return "User not found"
+        return 'User not found'
 
-    def get_user_fridges(self, ID):
-        """Returns information about the fridges
-        of a user with given ID"""
+    def get_fridges(self):
+        '''Returns information about the fridges
+        in the system'''
 
         # self.threadLock.acquire()
 
@@ -90,16 +86,12 @@ class Catalog:
         dict = json.loads(json_file)
         file.close()
 
-        for user in dict['users']:
-            if user['ID'] == ID:
-                return json.dumps(user['fridges'])
-
         # self.threadLock.release()
-        return "User not found"
+        return json.dumps(dict['fridges'])
 
     def get_fridge(self, ID_fridge):
-        """Returns information about a fridge
-        with given ID_fridge"""
+        '''Returns information about a fridge
+        with given ID_fridge'''
         # self.threadLock.acquire()
 
         file = open(self.filename, 'r')
@@ -109,15 +101,15 @@ class Catalog:
 
         # self.threadLock.release()
 
-        for user in dict['users']:
-            for fridge in user['fridges']:
-                if fridge["ID_fridge"] == ID_fridge:
+        for fridge in dict['fridges']:
+            if fridge['ID_fridge'] == ID_fridge:
                     return json.dumps(fridge)
         return "Fridge not found"
 
 
     def associate(self, IDUser, IDFridge, password):
-        # Associates a specific fridge to a user, by means of the relative IDs and a password.
+        '''Associates a specific fridge to a user,
+        by means of the relative IDs and a password'''
 
         # self.threadLock.acquire()
 
